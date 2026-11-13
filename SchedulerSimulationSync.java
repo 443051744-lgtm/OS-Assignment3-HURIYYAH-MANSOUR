@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
-// TODO (Feature 3):               import java.util.concurrent.Semaphore;
+import java.util.concurrent.Semaphore;
 
 // ANSI Color Codes for enhanced terminal output (same as Assignment 1)
 class Colors {
@@ -137,6 +137,9 @@ class ReadyQueue {
     // Feature 1: protect the FIFO and its thread-to-process mapping together.
     private final ReentrantLock queueLock = new ReentrantLock();
 
+    // Feature 3: start empty; add() releases one permit per enqueued process.
+    private final Semaphore readyCount = new Semaphore(0);
+
     // Add a process to the ready queue (new process, or a process that did not finish its quantum)
     public void add(Process process) {
         queueLock.lock();
@@ -147,6 +150,9 @@ class ReadyQueue {
         } finally {
             queueLock.unlock();
         }
+
+        // Publish an available item only after adding it to the protected queue.
+        readyCount.release();
 
         System.out.println(Colors.BLUE + "  ➕ " + Colors.BOLD + Colors.CYAN + process.getName() + Colors.RESET +
                 Colors.BLUE + " (Priority: " + process.getPriority() + ") added to ready queue" + Colors.RESET +
@@ -194,6 +200,15 @@ class ReadyQueue {
         }
     }
 
+    // The last CPU sends one wake-up signal per CPU to end blocking waits.
+    public void wakeWaitingCPUs() {
+        readyCount.release(SharedStats.totalCPUs);
+    }
+
+    // Wait without polling; acquire() is deliberately outside queueLock.
+    public void waitForReadyProcess() throws InterruptedException {
+        readyCount.acquire();
+    }
 }
 
 // Class representing a process (same as Assignment 1) - executes ONE time quantum per thread start
@@ -298,21 +313,21 @@ class CpuWorker extends Thread {
 
     @Override
     public void run() {
-        while (SharedStats.getCompletedProcessCount() < SharedStats.totalProcesses) {
-
-            // TODO Feature 3: replace this polling loop by a blocking wait on the counting semaphore
-            Thread thread = readyQueue.poll();
-            if (thread == null) {
-                // ⚠️ BUSY WAITING: the CPU keeps checking an empty queue instead of sleeping until
-                // a process is available. It wastes CPU time and needs the "completed == total" test above to stop.
-                SharedStats.busyWaitPolls.incrementAndGet();      // (counted for the verification block)
-                try {
-                    Thread.sleep(20);
-                } catch (InterruptedException e) {
-                    return;
-                }
-                continue;
+        while (true) {
+            // Feature 3: sleep until an item or a shutdown permit is available.
+            try {
+                readyQueue.waitForReadyProcess();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
             }
+
+            // A shutdown permit does not represent a real queue item.
+            if (SharedStats.getCompletedProcessCount() == SharedStats.totalProcesses) {
+                return;
+            }
+
+            Thread thread = readyQueue.poll();
 
             Process process = readyQueue.processOf(thread);
             System.out.println(Colors.MAGENTA + "  ┌─ [CPU-" + cpuId + "] picks " + Colors.BRIGHT_CYAN +
@@ -331,8 +346,11 @@ class CpuWorker extends Thread {
                 readyQueue.add(process);         // not finished: back to the ready queue
             }
 
-            // TODO Feature 3: when the LAST process has completed, wake up the CPUs that are blocked on the
-            // semaphore so that they can terminate (otherwise they would wait forever!)
+            // After the final completion, wake CPUs blocked on acquire().
+            if (process.isFinished() &&
+                    SharedStats.getCompletedProcessCount() == SharedStats.totalProcesses) {
+                readyQueue.wakeWaitingCPUs();
+            }
         }
     }
 }
