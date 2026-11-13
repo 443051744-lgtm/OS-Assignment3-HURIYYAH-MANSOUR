@@ -148,55 +148,69 @@
 
 ---
 
-### Entry 2 - [Your actual date and time]
-**What I did**: [Record your own work session, e.g., checking the queue lock]
+### Entry 2 - [November 13, 2026, 11:33 PM - Feature 1 commit]
+**What I did**: Reviewed and committed the ready queue locking feature with AI assistance.
 
 **Details**:
+- Added a `ReentrantLock` for the shared ready queue and its thread-to-process map.
+- Protected `add()`, `poll()`, `processOf()` and `snapshot()` with `lock()` and `try/finally` so the lock is always released.
+- The change was saved in a separate GitHub commit: `Feature 1: Protect the ready queue with a ReentrantLock`.
 
-**Challenges**:
+**Challenges**: Multiple CPU workers could read or remove the same queue entry before synchronization, producing exceptions and lost processes.
 
-**Solution**:
+**Solution**: Kept each queue operation inside one protected critical section while leaving the original `RaceWindow` testing code unchanged.
 
-**Time spent**:
+**Time spent**: Not separately recorded; student should add their actual review time.
 
 ---
 
-### Entry 3 - [Your actual date and time]
-**What I did**: [Record your own work session, e.g., testing the statistics locks]
+### Entry 3 - [November 13, 2026, 11:33 PM - Feature 2 commit]
+**What I did**: Reviewed and committed thread-safe shared statistics with AI assistance.
 
 **Details**:
+- Protected `contextSwitchCount`, `completedProcessCount`, and `totalServiceTime` with separate `ReentrantLock` instances.
+- Used matching locks in the update methods and getter methods, and released every lock in `finally`.
+- The change was saved in a separate GitHub commit: `Feature 2: Protect each shared statistics counter with a ReentrantLock`.
 
-**Challenges**:
+**Challenges**: Two CPUs could read the same counter value and overwrite each other's updates, causing the verification totals to be wrong.
 
-**Solution**:
+**Solution**: Used one lock per independent statistic, allowing unrelated counter operations to proceed without requiring a single global lock.
 
-**Time spent**:
+**Time spent**: Not separately recorded; student should add their actual review time.
 
 ---
 
-### Entry 4 - [Your actual date and time]
-**What I did**: [Record your own work session, e.g., explaining the semaphore]
+### Entry 4 - [November 13, 2026, 11:33 PM - Feature 3 commit]
+**What I did**: Reviewed and committed the counting semaphore feature with AI assistance.
 
 **Details**:
+- Used a counting semaphore starting at `0` to represent the number of ready processes.
+- Each `add()` releases one permit; a worker calls `acquire()` before removing an available process.
+- When the final process completes, the code releases shutdown permits so other waiting CPUs can exit.
+- The change was saved in a separate GitHub commit: `Feature 3: Use a counting semaphore instead of busy waiting`.
 
-**Challenges**:
+**Challenges**: Workers could otherwise poll an empty queue repeatedly or remain blocked forever after all processes finish.
 
-**Solution**:
+**Solution**: Replaced repeated queue polling with blocking `acquire()` and handled the shutdown signal after the last process finishes.
 
-**Time spent**:
+**Time spent**: Not separately recorded; student should add their actual review time.
 
 ---
 
-### Entry 5 - [Your actual date and time]
-**What I did**: [Record your own work session, e.g., GitHub/video review]
+### Entry 5 - [November 13, 2026, 11:34 PM - documentation commit]
+**What I did**: Checked the tested results and committed the project documentation with AI assistance.
 
 **Details**:
+- Compiled the final Java code and ran the synchronized version five times successfully.
+- Every run passed the four built-in checks: context switches `25/25`, completed processes `10/10`, total service time `95672/95672 ms`, and busy-waiting polls `0/0`.
+- Updated `MY_WORK.md` with verified student details, the real repository URL, reflection drafts, technical explanations, and the original/final result comparison.
+- The documentation change was saved in a separate GitHub commit.
 
-**Challenges**:
+**Challenges**: The assignment needs real development-session dates and a personally recorded video, neither of which can be invented from the repository history.
 
-**Solution**:
+**Solution**: Documented the actual commits and test results; left the video link and personal review times for the student to complete honestly.
 
-**Time spent**:
+**Time spent**: Not separately recorded; student should add their actual review time.
 
 ---
 
