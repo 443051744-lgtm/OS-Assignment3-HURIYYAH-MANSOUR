@@ -32,17 +32,17 @@
 
 | Field | Your Answer |
 |-------|-------------|
-| **Full Name** | [Write your full name here] |
-| **Student ID** | [Write your student ID here] |
-| **University Email** | [yourid]@std.psau.edu.sa |
-| **GitHub Username** | [your-github-username] |
-| **Repository Link** | [Paste your repository link here] |
+| **Full Name** | HURIYYAH MANSOUR (حورية منصور) |
+| **Student ID** | 443051744 |
+| **University Email** | 443051744@std.psau.edu.sa |
+| **GitHub Username** | 443051744-lgtm |
+| **Repository Link** | https://github.com/443051744-lgtm/OS-Assignment3-HURIYYAH-MANSOUR |
  
 ---
 
 ## 🎥 Video Link
 
-**Video Link**: [Paste your video link here]
+**Video Link**: [Add the public video link after recording]
 
 > ⚠️ **WARNING:** The video must be **publicly accessible** ("Anyone with the link can view") on **Google Drive**, **YouTube (Unlisted or Public)** or any other cloud file-sharing system. A private, restricted or broken link counts as a **missing video (-1 mark)**.
 >
@@ -132,8 +132,24 @@
 
 ## Your Development Log
 
-### Entry 1 - [Date and Time]
-**What I did**:
+### Entry 1 - [November 13, 2026, 11:21 PM - assisted preparation]
+**What I did**: Prepared and tested a synchronized version of the starter with AI assistance; I still need to review the changes myself.
+
+**Details**:
+- Ran the original starter with my student ID (443051744) and recorded the race-condition results.
+- Applied queue locking, three statistics locks, and a counting semaphore in the starter Java file.
+- The first final run and four more runs passed all four verification checks.
+
+**Challenges**: The original program had multiple CPU thread exceptions and a watchdog timeout.
+
+**Solution**: Protect shared state with `ReentrantLock`, use `Semaphore(0)` for queue availability, and release shutdown permits after the last process finishes.
+
+**Time spent**: [Record your actual review/work time]
+
+---
+
+### Entry 2 - [Your actual date and time]
+**What I did**: [Record your own work session, e.g., checking the queue lock]
 
 **Details**:
 
@@ -145,8 +161,8 @@
 
 ---
 
-### Entry 2 - [Date and Time]
-**What I did**:
+### Entry 3 - [Your actual date and time]
+**What I did**: [Record your own work session, e.g., testing the statistics locks]
 
 **Details**:
 
@@ -158,8 +174,8 @@
 
 ---
 
-### Entry 3 - [Date and Time]
-**What I did**:
+### Entry 4 - [Your actual date and time]
+**What I did**: [Record your own work session, e.g., explaining the semaphore]
 
 **Details**:
 
@@ -171,21 +187,8 @@
 
 ---
 
-### Entry 4 - [Date and Time]
-**What I did**:
-
-**Details**:
-
-**Challenges**:
-
-**Solution**:
-
-**Time spent**:
-
----
-
-### Entry 5 - [Date and Time]
-**What I did**:
+### Entry 5 - [Your actual date and time]
+**What I did**: [Record your own work session, e.g., GitHub/video review]
 
 **Details**:
 
@@ -214,13 +217,13 @@
 
 > 💡 **TIP:** Fill this in **last**, after all entries are written.
 
-**Total time spent on assignment**: [X hours]
+**Total time spent on assignment**: [Add your real total time]
 
-**Most challenging part**:
+**Most challenging part**: Understanding how to stop the CPUs that are blocked on the semaphore after all processes finish.
 
-**Most interesting learning**:
+**Most interesting learning**: Separate locks can prevent lost updates without blocking unrelated statistics updates.
 
-**What I would do differently next time**:
+**What I would do differently next time**: Test one synchronization feature at a time and record the output from every important run.
 
 ---
 
@@ -240,7 +243,7 @@
 
 **Your Answer:** *(5-7 sentences)*
 
-[Write your answer here.]
+I learned that two or more CPU threads can corrupt shared data even when each thread seems to run correctly on its own. In the original scheduler, several CPUs could read the same queue head before it was removed. I also saw that the read-pause-write pattern of a counter could lose updates if no lock protected it. A `ReentrantLock` keeps the full critical section together, and the `finally` block releases the lock even if a problem occurs. I used a counting semaphore so CPUs wait for available processes instead of repeatedly checking an empty queue. The most important lesson for me is that correct concurrent code needs both safe shared-data access and a safe way to wake waiting threads.
 
 ## Question 2: What was the most challenging part of this assignment?
 
@@ -248,7 +251,7 @@
 
 **Your Answer:** *(5-7 sentences)*
 
-[Write your answer here.]
+The most challenging part was understanding how the CPUs should stop when the ready queue becomes empty. An empty queue does not always mean the program has finished, because another CPU may still be executing a quantum and will re-enqueue its process. If a worker simply exits on an empty queue, some processes might never finish. After adding the semaphore, the opposite problem appears: the workers may stay blocked forever after the last process has completed. The solution is to check the completed-process count after waking and send shutdown permits when the count reaches the total number of processes. This was harder than adding the locks because it required understanding the order of events across several threads.
 
 ## Question 3: How did you overcome the challenges you faced?
 
@@ -256,7 +259,7 @@
 
 **Your Answer:** *(5-7 sentences)*
 
-[Write your answer here.]
+I started by comparing the broken starter's output with the expected values in its verification block. My student ID produced 10 processes and 4 CPUs, so it was easy to see several threads competing for the same ready queue. I identified the shared accesses in `ReadyQueue` and `SharedStats` and protected each complete operation with `try/finally`. Next, I replaced the empty-queue polling with a semaphore that begins at zero permits. I added a shutdown signal for blocked CPUs and checked the result against all four built-in tests. The corrected program passed five runs, which gave me stronger evidence than a single successful run.
 
 ## Question 4: Where can synchronization concepts be applied in real-world applications?
 
@@ -264,7 +267,7 @@
 
 **Your Answer:** *(5-7 sentences)*
 
-[Write your answer here.]
+Synchronization is important whenever multiple users or workers access the same resource at the same time. In online banking, a lock can prevent two withdrawals from reading the same old account balance and both succeeding incorrectly. A ticket-booking system also needs mutual exclusion when updating the number of seats left. The ready queue in this assignment is similar to a printer queue where several workers share a list of jobs. A semaphore can let a printer worker sleep until a new job arrives instead of checking repeatedly. The same ideas help databases and web servers keep shared counters and work queues consistent under heavy use.
 
 ### Optional: What would you like to learn more about?
 
@@ -298,20 +301,31 @@
 
 **Your Answer:** *(3-5 sentences)*
 
-[Write your answer here.]
+With student ID 443051744, the original starter crashed with `IllegalThreadStateException` on CPU-1, CPU-2, and CPU-3, and the watchdog reported that the simulation did not finish. Its context-switch count was 16 instead of 25 (9 short), its completed-process count was 7 instead of 10 (3 short), and its total service time was 62,954 ms instead of 95,672 ms (32,718 ms short). There were also 828 busy-wait polls rather than zero. These failures came from unprotected shared queue access and counter updates; on real CPUs, a context switch can interrupt a read-modify-write sequence even without the artificial `RaceWindow.pause()`. The timing changes between runs, so the same bug may appear randomly and be difficult to reproduce.
 
 Verification block of the **original starter**:
 ```
-[Paste the verification block (or the exception/watchdog message) of the starter here]
+Exception in thread "CPU-1" java.lang.IllegalThreadStateException
+Exception in thread "CPU-3" java.lang.IllegalThreadStateException
+Exception in thread "CPU-2" java.lang.IllegalThreadStateException
+WATCHDOG: the simulation did not finish (29 s).
+Context switches (quanta executed)     expected 25       observed 16       MISMATCH
+Completed processes                    expected 10       observed 7        MISMATCH
+Total service time (ms)                expected 95672    observed 62954    MISMATCH
+Busy-waiting polls (must be 0)         expected 0        observed 828      MISMATCH
 ```
 
 Verification block of **my final version**:
 ```
-[Paste the verification block of your final version here (all lines ✔)]
+Context switches (quanta executed)     expected 25       observed 25       ✔
+Completed processes                    expected 10       observed 10       ✔
+Total service time (ms)                expected 95672    observed 95672    ✔
+Busy-waiting polls (must be 0)         expected 0        observed 0        ✔
+✔ All shared values are consistent.
 ```
 
 **Explanation of the timeline:**
-[Explain the lost update step by step.]
+For example, CPU-1 and CPU-2 can each enter `incrementContextSwitch()` and read `contextSwitchCount = 8` before either writes a new value. During `RaceWindow.pause()`, both keep the same temporary value, then each writes 9, even though two quanta started and the correct count should be 10. The context-switch lock prevents the second read until the first update is finished.
 
 ## Question 2: Critical Sections and Lock Granularity
 
@@ -321,12 +335,14 @@ Verification block of **my final version**:
 
 **Your Answer:** *(3-5 sentences)*
 
-[Write your answer here.]
+I protected every access to the shared `list` and `map` in `ReadyQueue` with `queueLock`, including `add()`, `poll()`, `processOf()`, and `snapshot()`. I used three separate locks for the independent statistics (`contextSwitchLock`, `completedProcessLock`, and `serviceTimeLock`) so unrelated counters can be updated at the same time; the trade-off is extra locks and more code. Keeping `queueLock` separate from the statistics locks avoids unnecessary interference between queue operations and counter updates. Each lock provides mutual exclusion, while the short critical sections and releasing locks in `finally` support progress. Default `ReentrantLock` is not fair, so it cannot strictly guarantee bounded waiting because a thread may be overtaken repeatedly.
 
 | Critical section (variable / method) | Lock used | Why it needs protection |
 |---|---|---|
-| [e.g., `ReadyQueue.poll()`] | [lock name] | [reason] |
-| [...] | [...] | [...] |
+| `ReadyQueue.add()`, `poll()`, `processOf()`, `snapshot()` (`list` and `map`) | `queueLock` | Prevent duplicate removals, lost queue entries, and unsafe iteration. |
+| `incrementContextSwitch()`, `getContextSwitchCount()` | `contextSwitchLock` | Prevent lost increments and protect reads of the count. |
+| `incrementCompletedProcess()`, `getCompletedProcessCount()` | `completedProcessLock` | Prevent lost completions and protect shutdown checks. |
+| `addServiceTime()`, `getTotalServiceTime()` | `serviceTimeLock` | Preserve the sum of executed quantum times and safe reads. |
 
 ## Question 3: Busy Waiting vs Semaphore
 
@@ -336,7 +352,7 @@ Verification block of **my final version**:
 
 **Your Answer:** *(3-5 sentences)*
 
-[Write your answer here.]
+In the original scheduler, a CPU finding an empty queue repeatedly slept for 20 ms and checked again, causing 828 busy-waiting polls in my starter run. The `readyCount` semaphore starts at 0 because the queue initially contains no processes, and each `add()` releases one permit for an available process. After the 10 initial processes are added (before any CPU starts), the semaphore has 10 permits; an idle CPU then blocks in `acquire()` until a permit appears. When the final process finishes, the worker releases `totalCPUs` (4) shutdown permits so waiting workers wake up, notice that all 10 processes completed, and exit instead of hanging.
 
 ## Question 4: Classical Problems and Deadlock
 
@@ -346,25 +362,27 @@ Verification block of **my final version**:
 
 **Your Answer:** *(3-5 sentences)*
 
+This is a producer-consumer problem: the main thread initially produces processes, while CPU workers consume queue entries and also act as producers when they re-enqueue unfinished processes. If the queue had a maximum capacity `K`, the classical bounded-buffer solution would use `empty = K`, `full = 0`, and `mutex = 1` as semaphore initial values. A producer that acquires `mutex` first and then waits for `empty` when the buffer is full can deadlock with a consumer that needs the same mutex to remove an item and free space. Acquiring `empty` before `mutex` avoids holding the mutex while waiting and breaks the hold-and-wait condition in that scenario.
+
 **Classical problem and roles**:
-[Name the problem; who is the producer, who is the consumer?]
+Bounded-buffer / producer-consumer. The main thread and re-enqueuing CPUs produce ready-queue entries; CPUs consume them when they run a quantum.
 
 **Semaphores for a bounded queue (name and initial value)**:
-[Name the three semaphores and their initial values.]
+`empty = K` (free slots), `full = 0` (available items), `mutex = 1` (mutual exclusion).
 
 **Deadlock scenario and prevention**:
-[Describe the scenario and the necessary condition you would break.]
+If a producer holds `mutex` while waiting on `empty` in a full queue, the consumer cannot lock the queue to create a free slot. Wait for an available `empty` slot before taking `mutex`, breaking hold-and-wait.
 
 ## Summary
 
 **Key concepts I understood through these questions:**
-1.
-2.
-3.
+1. A read-modify-write update is not atomic without synchronization.
+2. Critical sections need consistent locking for both reading and writing.
+3. Semaphores avoid polling and can support a clean worker shutdown.
 
 **Concepts I need to study more:**
-1.
-2.
+1. Fair locks and formal bounded-waiting guarantees.
+2. Semaphore coordination for bounded queues under high load.
 
 ---
 
